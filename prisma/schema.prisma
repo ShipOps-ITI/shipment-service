@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ShipmentStatus {
+  Pending
+  Loaded
+  InTransit
+  Delivered
+  Delayed
+  Cancelled
+}
+
+model Shipment {
+
+  id                Int      @id @default(autoincrement())
+
+  shipmentNumber    String   @unique
+
+  shipId            Int
+
+  customerName      String
+
+  origin            String
+
+  destination       String
+
+  departureDate     DateTime
+
+  arrivalDate       DateTime
+
+  status            ShipmentStatus
+
+  createdAt         DateTime @default(now())
+
+  updatedAt         DateTime @updatedAt
+
+  cargo             Cargo[]
+
+  @@map("shipments")
+}
+
+model Cargo{
+
+  id                Int      @id @default(autoincrement())
+
+  shipmentId        Int
+
+  cargoName         String
+
+  cargoType         String
+
+  weight            Decimal
+
+  quantity          Int
+
+  containerNumber   String?
+
+  description       String?
+
+  createdAt         DateTime @default(now())
+
+  updatedAt         DateTime @updatedAt
+
+  shipment Shipment @relation(fields:[shipmentId],references:[id],onDelete:Cascade)
+
+  @@map("cargo")
+}
