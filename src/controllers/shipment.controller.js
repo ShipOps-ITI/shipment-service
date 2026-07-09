@@ -1,5 +1,5 @@
 import * as shipmentService from "../services/shipment.service.js";
-import asyncHandler from "../utils/asyncHandler.js";
+import asyncHandler from "../middleware/asyncHandler.js";
 
 export const getAllShipments = asyncHandler(async (req, res) => {
   const shipments = await shipmentService.getAllShipments();
