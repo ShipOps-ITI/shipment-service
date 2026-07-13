@@ -32,8 +32,21 @@ export const createShipment = asyncHandler(async (req, res) => {
   });
 });
 
-export const updateShipment = asyncHandler(async (req, res) => {
-  const shipment = await shipmentService.updateShipment(
+export const replaceShipment = asyncHandler(async (req, res) => {
+  const shipment = await shipmentService.replaceShipment(
+    Number(req.params.id),
+    req.body
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Shipment updated successfully.",
+    data: shipment,
+  });
+});
+
+export const patchShipment = asyncHandler(async (req, res) => {
+  const shipment = await shipmentService.patchShipment(
     Number(req.params.id),
     req.body
   );
