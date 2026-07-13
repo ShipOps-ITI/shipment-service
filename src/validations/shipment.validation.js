@@ -105,7 +105,7 @@ export const patchShipmentValidation = [
     .notEmpty()
     .withMessage("Shipment number cannot be empty."),
 
- body("id")
+ body("shipId")
   .not()
   .exists()
   .withMessage("ID must not be provided in the request body."),
