@@ -56,10 +56,11 @@ export const updateShipmentValidation = [
     .notEmpty()
     .withMessage("Shipment number is required."),
 
-  body("shipId")
-  .not()
-  .exists()
-  .withMessage("ID must not be provided in the request body."),
+  // body("shipId")
+  // .not()
+  // .exists()
+  // .withMessage("ID must not be provided in the request body."),
+
 
   body("customerName")
     .trim()
@@ -105,10 +106,6 @@ export const patchShipmentValidation = [
     .notEmpty()
     .withMessage("Shipment number cannot be empty."),
 
- body("shipId")
-  .not()
-  .exists()
-  .withMessage("ID must not be provided in the request body."),
 
   body("customerName")
     .optional()

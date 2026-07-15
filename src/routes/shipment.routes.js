@@ -55,6 +55,7 @@ router.put(
 
 router.patch(
     "/:id",
+    authenticate,
     authorize(
         Role.ADMIN,
         Role.FLEET_MANAGER,
