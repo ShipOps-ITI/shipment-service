@@ -12,6 +12,23 @@ router.post("/", shipmentController.createShipment);
 
 router.put("/:id", shipmentController.updateShipment);
 
-router.delete("/:id", shipmentController.deleteShipment);
+router.patch(
+    "/:id",
+    authenticate,
+    authorize(
+        Role.ADMIN,
+        Role.FLEET_MANAGER,
+        Role.PORT_OPERATOR
+    ),
+    patchShipmentValidation,
+    validate,
+    shipmentController.patchShipment
+);
+router.delete("/:id",
+    authenticate,
+    authorize(
+        Role.ADMIN
+    ),
+    shipmentController.deleteShipment);
 
 export default router;
