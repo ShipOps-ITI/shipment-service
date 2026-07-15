@@ -1,6 +1,20 @@
 import prisma from "../config/prisma.js";
 import AppError from "../utils/AppError.js";
 
+
+
+const findShipmentOrThrow = async (id) => {
+  const shipment = await prisma.shipment.findUnique({
+    where: { id },
+  });
+
+  if (!shipment) {
+    throw new AppError("Shipment not found.", 404);
+  }
+
+  return shipment;
+};
+
 export const getAllShipments = async () => {
   return await prisma.shipment.findMany({
     orderBy: {
@@ -36,8 +50,8 @@ export const createShipment = async (shipmentData) => {
   });
 };
 
-export const updateShipment = async (id, shipmentData) => {
-  await getShipmentById(id);
+export const replaceShipment = async (id, shipmentData) => {
+  await findShipmentOrThrow(id);
 
   return prisma.shipment.update({
     where: { id },
@@ -48,6 +62,7 @@ export const updateShipment = async (id, shipmentData) => {
     },
   });
 };
+
 
 export const patchShipment = async (id, shipmentData) => {
   const shipment = await findShipmentOrThrow(id);
@@ -105,7 +120,7 @@ export const patchShipment = async (id, shipmentData) => {
 };
 
 export const deleteShipment = async (id) => {
-  await getShipmentById(id);
+  const shipment = await findShipmentOrThrow(id);
 
   await prisma.shipment.delete({
     where: {

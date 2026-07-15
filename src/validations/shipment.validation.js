@@ -61,6 +61,7 @@ export const updateShipmentValidation = [
   // .exists()
   // .withMessage("ID must not be provided in the request body."),
 
+
   body("customerName")
     .trim()
     .notEmpty()
