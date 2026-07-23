@@ -45,11 +45,21 @@ model Shipment {
   @@map("shipments")
 }
 
-model Cargo{
+enum CargoStatus {
+  Pending
+  Loaded
+  InTransit
+  Delivered
+  Damaged
+}
+
+model Cargo {
 
   id                Int      @id @default(autoincrement())
 
   shipmentId        Int
+
+  createdByUserId   Int
 
   cargoName         String
 
@@ -63,11 +73,17 @@ model Cargo{
 
   description       String?
 
+  status            CargoStatus @default(Pending)
+
   createdAt         DateTime @default(now())
 
   updatedAt         DateTime @updatedAt
 
-  shipment Shipment @relation(fields:[shipmentId],references:[id],onDelete:Cascade)
+  shipment Shipment @relation(
+    fields:[shipmentId],
+    references:[id],
+    onDelete:Cascade
+  )
 
   @@map("cargo")
 }
