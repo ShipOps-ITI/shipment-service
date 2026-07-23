@@ -17,30 +17,19 @@ enum ShipmentStatus {
 }
 
 model Shipment {
+  id             Int            @id @default(autoincrement())
+  shipmentNumber String         @unique
+  shipId         Int
+  customerName   String
+  origin         String
+  destination    String
+  departureDate  DateTime
+  arrivalDate    DateTime
+  status         ShipmentStatus
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
-  id                Int      @id @default(autoincrement())
-
-  shipmentNumber    String   @unique
-
-  shipId            Int
-
-  customerName      String
-
-  origin            String
-
-  destination       String
-
-  departureDate     DateTime
-
-  arrivalDate       DateTime
-
-  status            ShipmentStatus
-
-  createdAt         DateTime @default(now())
-
-  updatedAt         DateTime @updatedAt
-
-  cargo             Cargo[]
+  cargo Cargo[]
 
   @@map("shipments")
 }
@@ -54,36 +43,20 @@ enum CargoStatus {
 }
 
 model Cargo {
+  id              Int         @id @default(autoincrement())
+  shipmentId      Int
+  createdByUserId Int
+  cargoName       String
+  cargoType       String
+  weight          Decimal
+  quantity        Int
+  containerNumber String?
+  description     String?
+  status          CargoStatus @default(Pending)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 
-  id                Int      @id @default(autoincrement())
-
-  shipmentId        Int
-
-  createdByUserId   Int
-
-  cargoName         String
-
-  cargoType         String
-
-  weight            Decimal
-
-  quantity          Int
-
-  containerNumber   String?
-
-  description       String?
-
-  status            CargoStatus @default(Pending)
-
-  createdAt         DateTime @default(now())
-
-  updatedAt         DateTime @updatedAt
-
-  shipment Shipment @relation(
-    fields:[shipmentId],
-    references:[id],
-    onDelete:Cascade
-  )
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
 
   @@map("cargo")
 }
