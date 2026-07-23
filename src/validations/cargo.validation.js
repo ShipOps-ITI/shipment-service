@@ -21,9 +21,6 @@ export const createCargoValidation = [
         .isLength({ min: 2, max: 100 })
         .withMessage("Cargo name must be between 2 and 100 characters."),
 
-    body("createdByUserId")
-        .isInt({ min: 1 })
-        .withMessage("Creator ID must be a positive integer."),
     body("cargoType")
         .trim()
         .notEmpty()
@@ -67,9 +64,6 @@ export const updateCargoValidation = [
         .isInt({ min: 1 })
         .withMessage("Shipment ID must be a positive integer."),
 
-    body("createdByUserId")
-        .isInt({ min: 1 })
-        .withMessage("Creator ID must be a positive integer."),
 
     body("cargoName")
         .trim()
@@ -121,10 +115,7 @@ export const patchCargoValidation = [
         .isInt({ min: 1 })
         .withMessage("Shipment ID must be a positive integer."),
 
-    body("createdByUserId")
-        .optional()
-        .isInt({ min: 1 })
-        .withMessage("Creator ID must be a positive integer."),
+
     body("cargoName")
         .optional()
         .trim()
