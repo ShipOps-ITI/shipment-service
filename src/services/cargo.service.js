@@ -91,7 +91,7 @@ if (!shipment) {
 }
 
   return prisma.cargo.create({
-    data: { ...cargoData, createdByUserId: user.id },
+    data: { ...cargoData, createdByUserId: user.userId },
   });
 };
 

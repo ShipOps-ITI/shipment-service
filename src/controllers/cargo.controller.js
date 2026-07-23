@@ -22,6 +22,8 @@ export const getCargoById = asyncHandler(async (req, res) => {
 });
 
 export const createCargo = asyncHandler(async (req, res) => {
+
+  console.log(req.user);
   const cargo = await cargoService.createCargo(req.body, req.user);
 
   res.status(201).json({

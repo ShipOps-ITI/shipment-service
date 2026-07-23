@@ -7,7 +7,7 @@ export const ensureCargoOwnerOrAdmin = (cargo, user) => {
         return;
     }
 
-    if (cargo.createdByUserId !== user.id) {
+    if (cargo.createdByUserId !== user.userId) {
 
         throw new AppError(
             "You are not allowed to modify this cargo.",
