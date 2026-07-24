@@ -1,7 +1,12 @@
 import { Router } from "express";
 
 import * as shipmentController from "../controllers/shipment.controller.js";
-import { createShipmentValidation, updateShipmentValidation, patchShipmentValidation } from "../validations/shipment.validation.js";
+import {
+    createShipmentValidation,
+    updateShipmentValidation,
+    patchShipmentValidation,
+    listShipmentValidation,
+} from "../validations/shipment.validation.js";
 import validate from "../middleware/validate.js";
 import authenticate from "../middleware/authenticate.js";
 import { Role } from "../constants/roles.js";
@@ -17,6 +22,8 @@ router.get("/",
         Role.PORT_OPERATOR,
         Role.CAPTAIN
     ),
+    listShipmentValidation,
+    validate,
     shipmentController.getAllShipments);
 
 router.get("/:id",

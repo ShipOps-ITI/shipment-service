@@ -15,12 +15,60 @@ const findShipmentOrThrow = async (id) => {
   return shipment;
 };
 
-export const getAllShipments = async () => {
-  return await prisma.shipment.findMany({
-    orderBy: {
-      createdAt: "desc",
+export const getAllShipments = async (filters = {}) => {
+  const page = Number.isFinite(Number(filters.page)) && Number(filters.page) > 0
+    ? Number(filters.page)
+    : 1;
+  const limit = Number.isFinite(Number(filters.limit)) && Number(filters.limit) > 0
+    ? Math.min(Number(filters.limit), 100)
+    : 10;
+  const skip = (page - 1) * limit;
+
+  const where = {};
+
+  if (filters.status) {
+    where.status = filters.status;
+  }
+
+  if (filters.origin?.trim()) {
+    where.origin = { contains: filters.origin.trim(), mode: "insensitive" };
+  }
+
+  if (filters.destination?.trim()) {
+    where.destination = { contains: filters.destination.trim(), mode: "insensitive" };
+  }
+
+  if (filters.search?.trim()) {
+    const searchValue = filters.search.trim();
+    where.OR = [
+      { shipmentNumber: { contains: searchValue, mode: "insensitive" } },
+      { customerName: { contains: searchValue, mode: "insensitive" } },
+      { origin: { contains: searchValue, mode: "insensitive" } },
+      { destination: { contains: searchValue, mode: "insensitive" } },
+    ];
+  }
+
+  const [shipments, total] = await Promise.all([
+    prisma.shipment.findMany({
+      where,
+      orderBy: {
+        createdAt: "desc",
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.shipment.count({ where }),
+  ]);
+
+  return {
+    data: shipments,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
     },
-  });
+  };
 };
 
 export const getShipmentById = async (id) => {

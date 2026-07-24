@@ -1,5 +1,40 @@
-import { body } from "express-validator";
+import { body, query } from "express-validator";
 import { SHIPMENT_STATUSES } from "../constants/shipmentStatus.js";
+
+export const listShipmentValidation = [
+  query("page")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Page must be a positive integer."),
+
+  query("limit")
+    .optional()
+    .isInt({ min: 1, max: 100 })
+    .withMessage("Limit must be between 1 and 100."),
+
+  query("status")
+    .optional()
+    .isIn(SHIPMENT_STATUSES)
+    .withMessage("Invalid shipment status."),
+
+  query("origin")
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Origin filter cannot exceed 100 characters."),
+
+  query("destination")
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Destination filter cannot exceed 100 characters."),
+
+  query("search")
+    .optional()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage("Search term cannot exceed 100 characters."),
+];
 
 export const createShipmentValidation = [
   body("shipmentNumber")

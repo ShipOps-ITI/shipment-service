@@ -2,11 +2,13 @@ import * as cargoService from "../services/cargo.service.js";
 import asyncHandler from "../middleware/asyncHandler.js";
 
 export const getAllCargo = asyncHandler(async (req, res) => {
-  const cargo = await cargoService.getAllCargo(req.query.shipmentId);
+  const result = await cargoService.getAllCargo(req.query);
+
   res.status(200).json({
     success: true,
-    count: cargo.length,
-    data: cargo,
+    count: result.pagination.total,
+    data: result.data,
+    pagination: result.pagination,
   });
 });
 

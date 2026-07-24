@@ -6,6 +6,7 @@ import {
   createCargoValidation,
   updateCargoValidation,
   patchCargoValidation,
+  listCargoValidation,
 } from "../validations/cargo.validation.js";
 
 import validate from "../middleware/validate.js";
@@ -24,6 +25,8 @@ router.get(
     Role.PORT_OPERATOR,
     Role.CAPTAIN
   ),
+  listCargoValidation,
+  validate,
   cargoController.getAllCargo
 );
 
