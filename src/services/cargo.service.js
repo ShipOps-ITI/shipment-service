@@ -1,6 +1,7 @@
 import prisma from "../config/prisma.js";
 import AppError from "../utils/AppError.js";
 import { ensureCargoOwnerOrAdmin } from "../utils/cargoAuthorization.js";
+import { buildPagination, buildCargoFilterWhere } from "../utils/listQuery.js";
 
 const findCargoOrThrow = async (id) => {
   const cargo = await prisma.cargo.findUnique({
@@ -44,33 +45,8 @@ const validateStatusTransition = (currentStatus, newStatus) => {
 };
 
 export const getAllCargo = async (filters = {}) => {
-  const page = Number.isFinite(Number(filters.page)) && Number(filters.page) > 0
-    ? Number(filters.page)
-    : 1;
-  const limit = Number.isFinite(Number(filters.limit)) && Number(filters.limit) > 0
-    ? Math.min(Number(filters.limit), 100)
-    : 10;
-  const skip = (page - 1) * limit;
-
-  const where = {};
-
-  if (filters.shipmentId) {
-    where.shipmentId = Number(filters.shipmentId);
-  }
-
-  if (filters.status) {
-    where.status = filters.status;
-  }
-
-  if (filters.search?.trim()) {
-    const searchValue = filters.search.trim();
-    where.OR = [
-      { cargoName: { contains: searchValue, mode: "insensitive" } },
-      { cargoType: { contains: searchValue, mode: "insensitive" } },
-      { containerNumber: { contains: searchValue, mode: "insensitive" } },
-      { description: { contains: searchValue, mode: "insensitive" } },
-    ];
-  }
+  const { page, limit, skip } = buildPagination(filters);
+  const where = buildCargoFilterWhere(filters);
 
   const [cargo, total] = await Promise.all([
     prisma.cargo.findMany({
