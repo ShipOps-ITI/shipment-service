@@ -45,20 +45,24 @@ export const createShipmentValidation = [
     .isInt({ min: 1 })
     .withMessage("Ship ID must be a positive integer."),
 
+  body("companyId")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Company ID must be a positive integer."),
+
+  body("originPortId")
+    .isInt({ min: 1 })
+    .withMessage("Origin port is required."),
+
+  body("destinationPortId")
+    .isInt({ min: 1 })
+    .withMessage("Destination port is required."),
+
   body("customerName")
     .trim()
     .notEmpty()
     .withMessage("Customer name is required."),
 
-  body("origin")
-    .trim()
-    .notEmpty()
-    .withMessage("Origin is required."),
-
-  body("destination")
-    .trim()
-    .notEmpty()
-    .withMessage("Destination is required."),
 
   body("departureDate")
     .isISO8601()
@@ -91,10 +95,22 @@ export const updateShipmentValidation = [
     .notEmpty()
     .withMessage("Shipment number is required."),
 
-  // body("shipId")
-  // .not()
-  // .exists()
-  // .withMessage("ID must not be provided in the request body."),
+  body("shipId")
+    .isInt({ min: 1 })
+    .withMessage("Ship ID must be a positive integer."),
+
+  body("companyId")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Company ID must be a positive integer."),
+
+  body("originPortId")
+    .isInt({ min: 1 })
+    .withMessage("Origin port is required."),
+
+  body("destinationPortId")
+    .isInt({ min: 1 })
+    .withMessage("Destination port is required."),
 
 
   body("customerName")
@@ -102,15 +118,6 @@ export const updateShipmentValidation = [
     .notEmpty()
     .withMessage("Customer name is required."),
 
-  body("origin")
-    .trim()
-    .notEmpty()
-    .withMessage("Origin is required."),
-
-  body("destination")
-    .trim()
-    .notEmpty()
-    .withMessage("Destination is required."),
 
   body("departureDate")
     .isISO8601()
@@ -148,17 +155,8 @@ export const patchShipmentValidation = [
     .notEmpty()
     .withMessage("Customer name cannot be empty."),
 
-  body("origin")
-    .optional()
-    .trim()
-    .notEmpty()
-    .withMessage("Origin cannot be empty."),
-
-  body("destination")
-    .optional()
-    .trim()
-    .notEmpty()
-    .withMessage("Destination cannot be empty."),
+  body("originPortId").optional().isInt({ min: 1 }).withMessage("Origin port must be valid."),
+  body("destinationPortId").optional().isInt({ min: 1 }).withMessage("Destination port must be valid."),
 
   body("departureDate")
     .optional()

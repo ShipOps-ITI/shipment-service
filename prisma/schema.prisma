@@ -19,7 +19,12 @@ enum ShipmentStatus {
 model Shipment {
   id             Int            @id @default(autoincrement())
   shipmentNumber String         @unique
+  // References Core Service entities. They are nullable only to preserve
+  // legacy rows created before company/port ownership was introduced.
+  companyId      Int?
   shipId         Int
+  originPortId   Int?
+  destinationPortId Int?
   customerName   String
   origin         String
   destination    String
@@ -30,6 +35,11 @@ model Shipment {
   updatedAt      DateTime       @updatedAt
 
   cargo Cargo[]
+
+  @@index([companyId])
+  @@index([shipId])
+  @@index([originPortId])
+  @@index([destinationPortId])
 
   @@map("shipments")
 }
