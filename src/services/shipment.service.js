@@ -3,9 +3,9 @@ import AppError from "../utils/AppError.js";
 
 
 
-const findShipmentOrThrow = async (id) => {
-  const shipment = await prisma.shipment.findUnique({
-    where: { id },
+const findShipmentOrThrow = async (id, companyId = null) => {
+  const shipment = await prisma.shipment.findFirst({
+    where: { id, ...(companyId ? { companyId } : {}) },
   });
 
   if (!shipment) {
@@ -15,7 +15,7 @@ const findShipmentOrThrow = async (id) => {
   return shipment;
 };
 
-export const getAllShipments = async (filters = {}) => {
+export const getAllShipments = async (filters = {}, companyId = null) => {
   const page = Number.isFinite(Number(filters.page)) && Number(filters.page) > 0
     ? Number(filters.page)
     : 1;
@@ -24,7 +24,7 @@ export const getAllShipments = async (filters = {}) => {
     : 10;
   const skip = (page - 1) * limit;
 
-  const where = {};
+  const where = companyId ? { companyId } : {};
 
   if (filters.status) {
     where.status = filters.status;
@@ -71,11 +71,9 @@ export const getAllShipments = async (filters = {}) => {
   };
 };
 
-export const getShipmentById = async (id) => {
-  const shipment = await prisma.shipment.findUnique({
-    where: {
-      id,
-    },
+export const getShipmentById = async (id, companyId = null) => {
+  const shipment = await prisma.shipment.findFirst({
+    where: { id, ...(companyId ? { companyId } : {}) },
     include: {
       cargo: true,
     },
@@ -99,7 +97,7 @@ export const createShipment = async (shipmentData) => {
 };
 
 export const replaceShipment = async (id, shipmentData) => {
-  await findShipmentOrThrow(id);
+  await findShipmentOrThrow(id, shipmentData.companyId);
 
   return prisma.shipment.update({
     where: { id },
@@ -112,8 +110,8 @@ export const replaceShipment = async (id, shipmentData) => {
 };
 
 
-export const patchShipment = async (id, shipmentData) => {
-  const shipment = await findShipmentOrThrow(id);
+export const patchShipment = async (id, shipmentData, companyId = null) => {
+  const shipment = await findShipmentOrThrow(id, companyId);
 
   if (shipment.status === "Delivered") {
     throw new AppError(
@@ -167,8 +165,8 @@ export const patchShipment = async (id, shipmentData) => {
 });
 };
 
-export const deleteShipment = async (id) => {
-  const shipment = await findShipmentOrThrow(id);
+export const deleteShipment = async (id, companyId = null) => {
+  const shipment = await findShipmentOrThrow(id, companyId);
 
   await prisma.shipment.delete({
     where: {

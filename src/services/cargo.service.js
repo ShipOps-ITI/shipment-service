@@ -1,10 +1,10 @@
 import prisma from "../config/prisma.js";
 import AppError from "../utils/AppError.js";
-import { ensureCargoOwnerOrAdmin } from "../utils/cargoAuthorization.js";
 
-const findCargoOrThrow = async (id) => {
-  const cargo = await prisma.cargo.findUnique({
-    where: { id },
+const findCargoOrThrow = async (id, companyId = null) => {
+  const cargo = await prisma.cargo.findFirst({
+    where: { id, ...(companyId ? { shipment: { companyId } } : {}) },
+    include: { shipment: true },
   });
 
   if (!cargo) {
@@ -43,7 +43,7 @@ const validateStatusTransition = (currentStatus, newStatus) => {
   }
 };
 
-export const getAllCargo = async (filters = {}) => {
+export const getAllCargo = async (filters = {}, companyId = null) => {
   const page = Number.isFinite(Number(filters.page)) && Number(filters.page) > 0
     ? Number(filters.page)
     : 1;
@@ -52,7 +52,7 @@ export const getAllCargo = async (filters = {}) => {
     : 10;
   const skip = (page - 1) * limit;
 
-  const where = {};
+  const where = companyId ? { shipment: { companyId } } : {};
 
   if (filters.shipmentId) {
     where.shipmentId = Number(filters.shipmentId);
@@ -98,9 +98,9 @@ export const getAllCargo = async (filters = {}) => {
   };
 };
 
-export const getCargoById = async (id) => {
-  const cargo = await prisma.cargo.findUnique({
-    where: { id },
+export const getCargoById = async (id, companyId = null) => {
+  const cargo = await prisma.cargo.findFirst({
+    where: { id, ...(companyId ? { shipment: { companyId } } : {}) },
     include: {
       shipment: true,
     },
@@ -113,13 +113,11 @@ export const getCargoById = async (id) => {
   return cargo;
 };
 
-export const createCargo = async (cargoData, user) => {
+export const createCargo = async (cargoData, user, companyId = null) => {
   validateCargoData(cargoData);
-  const shipment = await prisma.shipment.findUnique({
-    where: {
-        id: cargoData.shipmentId,
-    },
-});
+  const shipment = await prisma.shipment.findFirst({
+    where: { id: cargoData.shipmentId, ...(companyId ? { companyId } : {}) },
+  });
 
 if (!shipment) {
     throw new AppError(
@@ -133,10 +131,8 @@ if (!shipment) {
   });
 };
 
-export const replaceCargo = async (id, cargoData, user) => {
-  const cargo = await findCargoOrThrow(id);
-
-  ensureCargoOwnerOrAdmin(cargo, user);
+export const replaceCargo = async (id, cargoData, user, companyId = null) => {
+  const cargo = await findCargoOrThrow(id, companyId);
 
   if (cargo.status === "Delivered") {
     throw new AppError(
@@ -169,10 +165,8 @@ export const replaceCargo = async (id, cargoData, user) => {
   });
 };
 
-export const patchCargo = async (id, cargoData, user) => {
-  const cargo = await findCargoOrThrow(id);
-
-  ensureCargoOwnerOrAdmin(cargo, user);
+export const patchCargo = async (id, cargoData, user, companyId = null) => {
+  const cargo = await findCargoOrThrow(id, companyId);
 
   if (cargo.status === "Delivered") {
     throw new AppError(
@@ -205,10 +199,8 @@ export const patchCargo = async (id, cargoData, user) => {
   });
 };
 
-export const deleteCargo = async (id, user) => {
-  const cargo = await findCargoOrThrow(id);
-
-  ensureCargoOwnerOrAdmin(cargo, user);
+export const deleteCargo = async (id, user, companyId = null) => {
+  const cargo = await findCargoOrThrow(id, companyId);
 
   if (cargo.status === "Delivered") {
     throw new AppError(

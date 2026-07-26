@@ -1,8 +1,9 @@
 import * as cargoService from "../services/cargo.service.js";
 import asyncHandler from "../middleware/asyncHandler.js";
+import { getCompanyIdForUser } from "../utils/companyScope.js";
 
 export const getAllCargo = asyncHandler(async (req, res) => {
-  const result = await cargoService.getAllCargo(req.query);
+  const result = await cargoService.getAllCargo(req.query, getCompanyIdForUser(req.user));
 
   res.status(200).json({
     success: true,
@@ -14,7 +15,7 @@ export const getAllCargo = asyncHandler(async (req, res) => {
 
 export const getCargoById = asyncHandler(async (req, res) => {
   const cargo = await cargoService.getCargoById(
-    Number(req.params.id)
+    Number(req.params.id), getCompanyIdForUser(req.user)
   );
 
   res.status(200).json({
@@ -26,7 +27,7 @@ export const getCargoById = asyncHandler(async (req, res) => {
 export const createCargo = asyncHandler(async (req, res) => {
 
   console.log(req.user);
-  const cargo = await cargoService.createCargo(req.body, req.user);
+  const cargo = await cargoService.createCargo(req.body, req.user, getCompanyIdForUser(req.user));
 
   res.status(201).json({
     success: true,
@@ -39,7 +40,7 @@ export const replaceCargo = asyncHandler(async (req, res) => {
   const cargo = await cargoService.replaceCargo(
     Number(req.params.id),
     req.body,
-    req.user
+    req.user, getCompanyIdForUser(req.user)
   );
 
   res.status(200).json({
@@ -53,7 +54,7 @@ export const patchCargo = asyncHandler(async (req, res) => {
   const cargo = await cargoService.patchCargo(
     Number(req.params.id),
     req.body,
-    req.user
+    req.user, getCompanyIdForUser(req.user)
   );
 
   res.status(200).json({
@@ -66,7 +67,7 @@ export const patchCargo = asyncHandler(async (req, res) => {
 export const deleteCargo = asyncHandler(async (req, res) => {
   await cargoService.deleteCargo(
     Number(req.params.id),
-    req.user
+    req.user, getCompanyIdForUser(req.user)
   );
 
   res.status(200).json({

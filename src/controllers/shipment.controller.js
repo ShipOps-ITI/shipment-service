@@ -1,8 +1,10 @@
 import * as shipmentService from "../services/shipment.service.js";
 import asyncHandler from "../middleware/asyncHandler.js";
+import { getCompanyIdForCreate, getCompanyIdForUser } from "../utils/companyScope.js";
+import { verifyShipmentReferences } from "../services/coreReference.service.js";
 
 export const getAllShipments = asyncHandler(async (req, res) => {
-  const result = await shipmentService.getAllShipments(req.query);
+  const result = await shipmentService.getAllShipments(req.query, getCompanyIdForUser(req.user));
 
   res.status(200).json({
     success: true,
@@ -13,9 +15,7 @@ export const getAllShipments = asyncHandler(async (req, res) => {
 });
 
 export const getShipmentById = asyncHandler(async (req, res) => {
-  const shipment = await shipmentService.getShipmentById(
-    Number(req.params.id)
-  );
+  const shipment = await shipmentService.getShipmentById(Number(req.params.id), getCompanyIdForUser(req.user));
 
   res.status(200).json({
     success: true,
@@ -24,7 +24,18 @@ export const getShipmentById = asyncHandler(async (req, res) => {
 });
 
 export const createShipment = asyncHandler(async (req, res) => {
-  const shipment = await shipmentService.createShipment(req.body);
+  const companyId = getCompanyIdForCreate(req.user, req.body.companyId);
+  const references = await verifyShipmentReferences({
+    ...req.body,
+    companyId,
+    authorization: req.headers.authorization,
+  });
+  const shipment = await shipmentService.createShipment({
+    ...req.body,
+    companyId,
+    origin: references.originPort.name,
+    destination: references.destinationPort.name,
+  });
 
   res.status(201).json({
     success: true,
@@ -34,10 +45,20 @@ export const createShipment = asyncHandler(async (req, res) => {
 });
 
 export const replaceShipment = asyncHandler(async (req, res) => {
-  const shipment = await shipmentService.replaceShipment(
-    Number(req.params.id),
-    req.body
-  );
+  const companyId = getCompanyIdForUser(req.user);
+  const existing = await shipmentService.getShipmentById(Number(req.params.id), companyId);
+  const targetCompanyId = existing.companyId ?? getCompanyIdForCreate(req.user, req.body.companyId);
+  const references = await verifyShipmentReferences({
+    ...req.body,
+    companyId: targetCompanyId,
+    authorization: req.headers.authorization,
+  });
+  const shipment = await shipmentService.replaceShipment(Number(req.params.id), {
+    ...req.body,
+    companyId: targetCompanyId,
+    origin: references.originPort.name,
+    destination: references.destinationPort.name,
+  });
 
   res.status(200).json({
     success: true,
@@ -47,10 +68,24 @@ export const replaceShipment = asyncHandler(async (req, res) => {
 });
 
 export const patchShipment = asyncHandler(async (req, res) => {
-  const shipment = await shipmentService.patchShipment(
-    Number(req.params.id),
-    req.body
-  );
+  const companyId = getCompanyIdForUser(req.user);
+  const existing = await shipmentService.getShipmentById(Number(req.params.id), companyId);
+  const portData = {
+    originPortId: req.body.originPortId ?? existing.originPortId,
+    destinationPortId: req.body.destinationPortId ?? existing.destinationPortId,
+  };
+  const references = await verifyShipmentReferences({
+    shipId: req.body.shipId ?? existing.shipId,
+    ...portData,
+    companyId: existing.companyId,
+    authorization: req.headers.authorization,
+  });
+  const shipment = await shipmentService.patchShipment(Number(req.params.id), {
+    ...req.body,
+    ...portData,
+    origin: references.originPort.name,
+    destination: references.destinationPort.name,
+  }, companyId);
 
   res.status(200).json({
     success: true,
@@ -60,7 +95,7 @@ export const patchShipment = asyncHandler(async (req, res) => {
 });
 
 export const deleteShipment = asyncHandler(async (req, res) => {
-  await shipmentService.deleteShipment(Number(req.params.id));
+  await shipmentService.deleteShipment(Number(req.params.id), getCompanyIdForUser(req.user));
 
   res.status(200).json({
     success: true,
