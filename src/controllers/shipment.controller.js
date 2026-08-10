@@ -23,6 +23,12 @@ export const getShipmentById = asyncHandler(async (req, res) => {
   });
 });
 
+export const getDashboardStatistics = asyncHandler(async (req, res) => {
+  const statistics = await shipmentService.getDashboardStatistics(getCompanyIdForUser(req.user));
+
+  res.status(200).json(statistics);
+});
+
 export const createShipment = asyncHandler(async (req, res) => {
   const companyId = getCompanyIdForCreate(req.user, req.body.companyId);
   const references = await verifyShipmentReferences({

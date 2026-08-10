@@ -16,6 +16,7 @@ const router = Router();
 const operationsRoles = [Role.ADMIN, Role.FLEET_MANAGER];
 
 router.get("/", authenticate, authorize(...operationsRoles), listShipmentValidation, validate, shipmentController.getAllShipments);
+router.get("/dashboard/statistics", authenticate, authorize(...operationsRoles), shipmentController.getDashboardStatistics);
 router.get("/:id", authenticate, authorize(...operationsRoles), shipmentController.getShipmentById);
 router.post("/", authenticate, authorize(...operationsRoles), createShipmentValidation, validate, shipmentController.createShipment);
 router.put("/:id", authenticate, authorize(...operationsRoles), updateShipmentValidation, validate, shipmentController.replaceShipment);
