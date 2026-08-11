@@ -14,7 +14,7 @@ enum ShipmentStatus {
   Delivered
   Delayed
   Cancelled
-}`
+}
 
 model Shipment {
   id             Int            @id @default(autoincrement())
