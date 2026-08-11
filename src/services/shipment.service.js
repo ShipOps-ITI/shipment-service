@@ -71,6 +71,58 @@ export const getAllShipments = async (filters = {}, companyId = null) => {
   };
 };
 
+export const getDashboardStatistics = async (companyId = null) => {
+  const where = companyId ? { companyId } : {};
+
+  const [
+    totalShipments,
+    deliveredShipments,
+    pendingShipments,
+    shipmentsByStatus,
+    latestShipments,
+  ] = await Promise.all([
+    prisma.shipment.count({ where }),
+    prisma.shipment.count({ where: { ...where, status: "Delivered" } }),
+    prisma.shipment.count({ where: { ...where, status: "Pending" } }),
+    prisma.shipment.groupBy({
+      by: ["status"],
+      _count: {
+        status: true,
+      },
+      where,
+    }),
+    prisma.shipment.findMany({
+      where,
+      orderBy: {
+        id: "desc",
+      },
+      take: 5,
+      select: {
+        id: true,
+        shipId: true,
+        customerName: true,
+        status: true,
+      },
+    }),
+  ]);
+
+  return {
+    totalShipments,
+    deliveredShipments,
+    pendingShipments,
+    shipmentsByStatus: shipmentsByStatus.map((item) => ({
+      status: item.status,
+      count: item._count.status,
+    })),
+    latestShipments: latestShipments.map((shipment) => ({
+      id: shipment.id,
+      ship_id: shipment.shipId,
+      customer: shipment.customerName,
+      status: shipment.status,
+    })),
+  };
+};
+
 export const getShipmentById = async (id, companyId = null) => {
   const shipment = await prisma.shipment.findFirst({
     where: { id, ...(companyId ? { companyId } : {}) },
