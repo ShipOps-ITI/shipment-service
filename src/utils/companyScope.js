@@ -12,6 +12,20 @@ export const getCompanyIdForUser = (user) => {
   return companyId;
 };
 
+export const getShipmentScopeForUser = (user) => {
+  if (user.role === Role.ADMIN) return {};
+
+  if (user.role === Role.CUSTOMER) {
+    const customerUserId = Number(user.userId);
+    if (!Number.isInteger(customerUserId) || customerUserId <= 0) {
+      throw new AppError("Invalid customer account.", 403);
+    }
+    return { customerUserId };
+  }
+
+  return { companyId: getCompanyIdForUser(user) };
+};
+
 export const getCompanyIdForCreate = (user, requestedCompanyId) => {
   if (user.role !== Role.ADMIN) return getCompanyIdForUser(user);
 

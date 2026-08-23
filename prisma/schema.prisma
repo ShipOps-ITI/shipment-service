@@ -25,7 +25,8 @@ model Shipment {
   shipId         Int
   originPortId   Int?
   destinationPortId Int?
-  customerName   String
+  customerUserId Int?
+  customerName   String?
   origin         String
   destination    String
   departureDate  DateTime
@@ -40,6 +41,7 @@ model Shipment {
   @@index([shipId])
   @@index([originPortId])
   @@index([destinationPortId])
+  @@index([customerUserId])
 
   @@map("shipments")
 }

@@ -59,9 +59,15 @@ export const createShipmentValidation = [
     .withMessage("Destination port is required."),
 
   body("customerName")
+    .optional({ nullable: true })
     .trim()
     .notEmpty()
-    .withMessage("Customer name is required."),
+    .withMessage("Customer name cannot be empty when provided."),
+
+  body("customerUserId")
+    .optional({ nullable: true })
+    .isInt({ min: 1 })
+    .withMessage("Customer must be valid."),
 
 
   body("departureDate")
@@ -104,6 +110,11 @@ export const updateShipmentValidation = [
     .isInt({ min: 1 })
     .withMessage("Company ID must be a positive integer."),
 
+  body("customerUserId")
+    .optional({ nullable: true })
+    .isInt({ min: 1 })
+    .withMessage("Customer must be valid."),
+
   body("originPortId")
     .isInt({ min: 1 })
     .withMessage("Origin port is required."),
@@ -114,9 +125,10 @@ export const updateShipmentValidation = [
 
 
   body("customerName")
+    .optional({ nullable: true })
     .trim()
     .notEmpty()
-    .withMessage("Customer name is required."),
+    .withMessage("Customer name cannot be empty when provided."),
 
 
   body("departureDate")
@@ -150,10 +162,15 @@ export const patchShipmentValidation = [
 
 
   body("customerName")
-    .optional()
+    .optional({ nullable: true })
     .trim()
     .notEmpty()
     .withMessage("Customer name cannot be empty."),
+
+  body("customerUserId")
+    .optional({ nullable: true })
+    .isInt({ min: 1 })
+    .withMessage("Customer must be valid."),
 
   body("originPortId").optional().isInt({ min: 1 }).withMessage("Origin port must be valid."),
   body("destinationPortId").optional().isInt({ min: 1 }).withMessage("Destination port must be valid."),

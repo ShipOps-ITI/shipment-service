@@ -3,9 +3,9 @@ import AppError from "../utils/AppError.js";
 
 
 
-const findShipmentOrThrow = async (id, companyId = null) => {
+const findShipmentOrThrow = async (id, scope = {}) => {
   const shipment = await prisma.shipment.findFirst({
-    where: { id, ...(companyId ? { companyId } : {}) },
+    where: { id, ...scope },
   });
 
   if (!shipment) {
@@ -15,7 +15,7 @@ const findShipmentOrThrow = async (id, companyId = null) => {
   return shipment;
 };
 
-export const getAllShipments = async (filters = {}, companyId = null) => {
+export const getAllShipments = async (filters = {}, scope = {}) => {
   const page = Number.isFinite(Number(filters.page)) && Number(filters.page) > 0
     ? Number(filters.page)
     : 1;
@@ -24,7 +24,7 @@ export const getAllShipments = async (filters = {}, companyId = null) => {
     : 10;
   const skip = (page - 1) * limit;
 
-  const where = companyId ? { companyId } : {};
+  const where = { ...scope };
 
   if (filters.status) {
     where.status = filters.status;
@@ -71,8 +71,8 @@ export const getAllShipments = async (filters = {}, companyId = null) => {
   };
 };
 
-export const getDashboardStatistics = async (companyId = null) => {
-  const where = companyId ? { companyId } : {};
+export const getDashboardStatistics = async (scope = {}) => {
+  const where = { ...scope };
 
   const [
     totalShipments,
@@ -123,9 +123,9 @@ export const getDashboardStatistics = async (companyId = null) => {
   };
 };
 
-export const getShipmentById = async (id, companyId = null) => {
+export const getShipmentById = async (id, scope = {}) => {
   const shipment = await prisma.shipment.findFirst({
-    where: { id, ...(companyId ? { companyId } : {}) },
+    where: { id, ...scope },
     include: {
       cargo: true,
     },
@@ -149,7 +149,7 @@ export const createShipment = async (shipmentData) => {
 };
 
 export const replaceShipment = async (id, shipmentData) => {
-  await findShipmentOrThrow(id, shipmentData.companyId);
+  await findShipmentOrThrow(id, { companyId: shipmentData.companyId });
 
   return prisma.shipment.update({
     where: { id },
@@ -162,8 +162,8 @@ export const replaceShipment = async (id, shipmentData) => {
 };
 
 
-export const patchShipment = async (id, shipmentData, companyId = null) => {
-  const shipment = await findShipmentOrThrow(id, companyId);
+export const patchShipment = async (id, shipmentData, scope = {}) => {
+  const shipment = await findShipmentOrThrow(id, scope);
 
   if (shipment.status === "Delivered") {
     throw new AppError(
@@ -217,8 +217,8 @@ export const patchShipment = async (id, shipmentData, companyId = null) => {
 });
 };
 
-export const deleteShipment = async (id, companyId = null) => {
-  const shipment = await findShipmentOrThrow(id, companyId);
+export const deleteShipment = async (id, scope = {}) => {
+  const shipment = await findShipmentOrThrow(id, scope);
 
   await prisma.shipment.delete({
     where: {
