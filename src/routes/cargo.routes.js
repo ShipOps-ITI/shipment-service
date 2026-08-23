@@ -12,7 +12,7 @@ import authorize from "../middleware/authorize.js";
 import { Role } from "../constants/roles.js";
 
 const router = Router();
-const operationsRoles = [Role.ADMIN, Role.FLEET_MANAGER];
+const operationsRoles = [Role.ADMIN, Role.COMPANY_ADMIN, Role.FLEET_MANAGER];
 
 router.get("/", authenticate, authorize(...operationsRoles), listCargoValidation, validate, cargoController.getAllCargo);
 router.get("/:id", authenticate, authorize(...operationsRoles), cargoController.getCargoById);
