@@ -139,24 +139,25 @@ export const getShipmentById = async (id, scope = {}) => {
 };
 
 export const createShipment = async (shipmentData) => {
+  const { customerUserId, ...data } = shipmentData;
   return prisma.shipment.create({
     data: {
-      ...shipmentData,
-      departureDate: new Date(shipmentData.departureDate),
-      arrivalDate: new Date(shipmentData.arrivalDate),
+      ...data,
+      departureDate: new Date(data.departureDate),
+      arrivalDate: new Date(data.arrivalDate),
     },
   });
 };
 
 export const replaceShipment = async (id, shipmentData) => {
   await findShipmentOrThrow(id, { companyId: shipmentData.companyId });
-
+  const { customerUserId, ...data } = shipmentData;
   return prisma.shipment.update({
     where: { id },
     data: {
-      ...shipmentData,
-      departureDate: new Date(shipmentData.departureDate),
-      arrivalDate: new Date(shipmentData.arrivalDate),
+      ...data,
+      departureDate: new Date(data.departureDate),
+      arrivalDate: new Date(data.arrivalDate),
     },
   });
 };
@@ -201,10 +202,11 @@ export const patchShipment = async (id, shipmentData, scope = {}) => {
     );
 }
 
+  const { customerUserId, ...patchData } = shipmentData;
   return prisma.shipment.update({
   where: { id },
   data: {
-    ...shipmentData,
+    ...patchData,
 
     ...(shipmentData.departureDate && {
       departureDate: new Date(shipmentData.departureDate),
