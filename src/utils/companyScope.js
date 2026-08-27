@@ -1,5 +1,6 @@
 import AppError from "./AppError.js";
 import { Role } from "../constants/roles.js";
+import { getAccessibleShipIds } from "../services/coreReference.service.js";
 
 export const getCompanyIdForUser = (user) => {
   if (user.role === Role.ADMIN) return null;
@@ -12,7 +13,7 @@ export const getCompanyIdForUser = (user) => {
   return companyId;
 };
 
-export const getShipmentScopeForUser = (user) => {
+export const getShipmentScopeForUser = async (user, authorization) => {
   if (user.role === Role.ADMIN) return {};
 
   if (user.role === Role.CUSTOMER) {
@@ -21,6 +22,10 @@ export const getShipmentScopeForUser = (user) => {
       throw new AppError("Invalid customer account.", 403);
     }
     return { customerUserId };
+  }
+
+  if (user.role === Role.FLEET_MANAGER) {
+    return { companyId: getCompanyIdForUser(user), shipId: { in: await getAccessibleShipIds(authorization) } };
   }
 
   return { companyId: getCompanyIdForUser(user) };

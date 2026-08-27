@@ -39,3 +39,22 @@ export const verifyShipmentReferences = async ({ shipId, originPortId, destinati
 
   return { ship, originPort, destinationPort };
 };
+
+export const getAccessibleShipIds = async (authorization) => {
+  let response;
+  try {
+    response = await fetch(`${coreBaseUrl}/ships?page=1&limit=100`, {
+      headers: { Authorization: authorization },
+    });
+  } catch {
+    throw new AppError("Core Service is unavailable. Please try again shortly.", 503);
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    throw new AppError("You do not have access to ships in this company.", 403);
+  }
+  if (!response.ok) throw new AppError("Could not determine accessible ships.", 502);
+
+  const payload = await response.json();
+  return (payload.data ?? []).map((ship) => Number(ship.id)).filter(Number.isInteger);
+};
